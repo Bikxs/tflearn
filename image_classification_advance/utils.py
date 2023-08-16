@@ -17,12 +17,12 @@ def init_gpus():
         try:
             # Currently, memory growth needs to be the same across GPUs
             for gpu in gpus:
-                memory_limit = int(1024 * 6)
+                # memory_limit = int(1024 * 6)
                 tf.config.experimental.set_memory_growth(gpu, True)
-                tf.config.experimental.set_virtual_device_configuration(
-                    gpu,
-                    [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=memory_limit)])
-                print(f"Set memory limit for {gpu} to {memory_limit}MBs")
+                # tf.config.experimental.set_virtual_device_configuration(
+                #     gpu,
+                #     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=memory_limit)])
+                # print(f"Set memory limit for {gpu} to {memory_limit}MBs")
 
         except:
             print("Couldn't set memory_growth")
