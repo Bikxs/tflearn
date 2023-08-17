@@ -30,6 +30,7 @@ def init_gpus():
 
 def plot_curves(history, title):
     folder = f'models/{title}'
+    plt.figure()
     # Plot training & validation loss values
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
@@ -40,6 +41,7 @@ def plot_curves(history, title):
     plt.savefig(f'{folder}/loss_plot.png')  # Save the figure as a PNG file
 
     # Plot training & validation accuracy values
+    plt.figure()
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
     plt.title(f'{title} accuracy')
@@ -47,10 +49,12 @@ def plot_curves(history, title):
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Validation'], loc='upper left')
     plt.savefig(f'{folder}/accuracy_plot.png')  # Save the figure as a PNG file
-
-    history_json = json.dumps(history.history, indent=4)
-    with open(f'{folder}/training_history.json', 'w') as json_file:
-        json_file.write(history_json)
+    try:
+        history_json = json.dumps(history.history, indent=4)
+        with open(f'{folder}/training_history.json', 'w') as json_file:
+            json_file.write(history_json)
+    except Exception as e:
+        print(f"Could not save history: {e}")
 
 
 def model__is_trained(title):
@@ -59,14 +63,28 @@ def model__is_trained(title):
     return os.path.exists(filename)
 
 
+def save_summary(model, title):
+    folder = f'models/{title}'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    filename = os.path.join(folder, f'summary.txt')
+    summary = []
+
+    def print_fn(data):
+        summary.append(data)
+
+    model.summary(print_fn=print_fn)
+    with open(filename, 'w') as summary_file:
+        summary_file.write("\n".join(summary))
+    print(f"Saved summary: {filename}")
+
+
 def save_model(model, title):
     folder = f'models/{title}'
     if not os.path.exists(folder):
         os.makedirs(folder)
     filename = os.path.join(folder, f'model.h5')
     model.save(filename)
-    with open(f'{folder}/summary.txt', 'w') as summary_file:
-        summary_file.write(model.summary())
     print(f"Saved model {filename}")
 
 
@@ -101,6 +119,7 @@ def train_eval_save(title, make_model, train):
             print(f"Model {title} already trained")
         else:
             model = make_model()
+            save_summary(model=model, title=title)
             history, model = train(model)
             plot_curves(history, title)
             save_model(model, title)

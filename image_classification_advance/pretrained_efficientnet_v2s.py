@@ -5,17 +5,18 @@ from keras.applications import InceptionResNetV2
 from keras.callbacks import EarlyStopping, CSVLogger, ReduceLROnPlateau
 from keras.layers import Input, Dense, Dropout
 from keras.models import Sequential
+from keras.src.applications import EfficientNetV2S
 
 from etl import batch_size, data_generators
 from utils import get_steps_per_epoch, train_eval_save
 
-title = 'pretrained_inception_resnet_v2'
+title = 'pretrained_efficientnet_v2s'
 
 
 def make_model():
     model = Sequential([
         Input(shape=(224, 224, 3)),
-        InceptionResNetV2(include_top=False,input_shape=(224, 224, 3), pooling='avg'),
+        EfficientNetV2S(include_top=False,input_shape=(224, 224, 3), pooling='avg'),
         Dropout(0.4),
         Dense(200, activation='softmax')
     ])
