@@ -113,14 +113,16 @@ def get_steps_per_epoch(n_data, batch_size):
 
 
 def train_eval_save(title, make_model, train):
+    metrics = ['accuracy']
+    epochs = 1
     try:
         K.clear_session()
         if model__is_trained(title):
             print(f"Model {title} already trained")
         else:
-            model = make_model()
+            model = make_model(metrics)
             save_summary(model=model, title=title)
-            history, model = train(model)
+            history, model = train(model,epochs)
             plot_curves(history, title)
             save_model(model, title)
         eval_model(title)

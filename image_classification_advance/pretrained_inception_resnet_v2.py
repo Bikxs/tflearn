@@ -12,7 +12,7 @@ from utils import get_steps_per_epoch, train_eval_save
 title = 'pretrained_inception_resnet_v2'
 
 
-def make_model():
+def make_model(metrics):
     model = Sequential([
         Input(shape=(224, 224, 3)),
         InceptionResNetV2(include_top=False,input_shape=(224, 224, 3), pooling='avg'),
@@ -22,12 +22,12 @@ def make_model():
 
     loss = tf.keras.losses.CategoricalCrossentropy()
     adam = tf.keras.optimizers.Adam(learning_rate=0.0001)
-    model.compile(loss=loss, optimizer=adam, metrics=['accuracy'])
+    model.compile(loss=loss, optimizer=adam, metrics=metrics)
     return model
 
 
-def train(model):
-    n_epochs = 50
+def train(model,epochs):
+
     train_gen_aux, valid_gen_aux, _ = data_generators(tripple_y=False,target_size=(224,224))
     # Create a directory which stores model performance
     if not os.path.exists(f'models/{title}'):
@@ -44,7 +44,7 @@ def train(model):
         train_gen_aux, validation_data=valid_gen_aux,
         steps_per_epoch=get_steps_per_epoch(int(0.9 * (500 * 200)), batch_size),
         validation_steps=get_steps_per_epoch(int(0.1 * (500 * 200)), batch_size),
-        epochs=n_epochs, callbacks=[es_callback, csv_logger, lr_callback]
+        epochs=epochs, callbacks=[es_callback, csv_logger, lr_callback]
     )
     return history, model
 

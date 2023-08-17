@@ -9,7 +9,7 @@ from utils import *
 title = 'inception_v1'
 
 
-def make_model():
+def make_model(metrics):
     def inception(inp, n_filters):
         # 1x1 layer
         # init argument defaults to glorot_uniform
@@ -86,13 +86,13 @@ def make_model():
 
         model = Model(inputs=inp, outputs=[out_main, aux_out1, aux_out2])
         model.compile(loss='categorical_crossentropy',
-                      optimizer='adam', metrics=['accuracy'])
+                      optimizer='adam', metrics=metrics)
         return model
 
     return inception_v1()
 
 
-def train(model):
+def train(model,epochs):
     train_gen_aux, valid_gen_aux, _ = data_generators()
     # Create a directory which stores model performance
     if not os.path.exists(f'models/{title}'):
@@ -107,7 +107,7 @@ def train(model):
         train_gen_aux, validation_data=valid_gen_aux,
         steps_per_epoch=get_steps_per_epoch(int(0.9 * (500 * 200)), batch_size),
         validation_steps=get_steps_per_epoch(int(0.1 * (500 * 200)), batch_size),
-        epochs=50, callbacks=[es_callback, csv_logger]
+        epochs=epochs, callbacks=[es_callback, csv_logger]
     )
     t2 = time.time()
 

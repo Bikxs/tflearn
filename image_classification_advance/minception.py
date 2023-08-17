@@ -14,7 +14,7 @@ from utils import train_eval_save, get_steps_per_epoch
 title = 'minception_resnet_v2'
 
 
-def make_model():
+def make_model(metrics):
     # Code listing 7.6
     def stem(inp, activation='relu', bn=True):
 
@@ -265,11 +265,11 @@ def make_model():
     # Loss Weighing: https://github.com/tensorflow/models/blob/09d3c74a31d7e0c1742ae65025c249609b3c9d81/research/slim/train_image_classifier.py#L495
     minception_resnet_v2 = Model(inputs=inp, outputs=out_main)
 
-    minception_resnet_v2.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer='adam', metrics=['accuracy'])
+    minception_resnet_v2.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer='adam', metrics=metrics)
 
     return minception_resnet_v2
 
-def train(model):
+def train(model,epochs):
     train_gen_aux, valid_gen_aux, _ = data_generators(tripple_y=False)
 
     # Create a directory which stores model performance
@@ -278,7 +278,7 @@ def train(model):
 
     es_callback = EarlyStopping(monitor='val_loss', patience=10)
     csv_logger = CSVLogger(os.path.join(f'models/{title}', 'early_stopping.log'))
-    n_epochs = 50
+
 
     lr_callback = tf.keras.callbacks.ReduceLROnPlateau(
         monitor='val_loss', factor=0.5, patience=5, verbose=1, mode='auto'
@@ -289,7 +289,7 @@ def train(model):
         train_gen_aux, validation_data=valid_gen_aux,
         steps_per_epoch=get_steps_per_epoch(int(0.9 * (500 * 200)), batch_size),
         validation_steps=get_steps_per_epoch(int(0.1 * (500 * 200)), batch_size),
-        epochs=n_epochs, callbacks=[es_callback, csv_logger, lr_callback]
+        epochs=epochs, callbacks=[es_callback, csv_logger, lr_callback]
     )
     t2 = time.time()
 
