@@ -53,8 +53,7 @@ def make_model(n_vocab):
     return model
 
 
-def train(model, batch_size):
-    data = get_datasets(batch_size)
+def train(model, batch_size,data):
     train_ds = data['train_ds']
     valid_ds = data['valid_ds']
     # There is a class imbalance in the data therefore we are defining a weight for negative inputs
@@ -91,7 +90,15 @@ def train(model, batch_size):
     print("It took {} seconds to complete the training".format(t2 - t1))
     return history, model
 
-
+def save_model(model):
+    os.makedirs('models', exist_ok=True)
+    filename = os.path.join('models', '1_sentiment_analysis.h5')
+    tf.keras.models.save_model(model, filename)
+    print(f"Saved model as {filename}")
+def evaluate_model(model,data):
+    test_ds = data['test_ds']
+    results = model.evaluate(test_ds)
+    print(f"Evaluation Results: {results}")
 if __name__ == '__main__':
     model = make_model(N_VOCAB)
     print(model.summary())
@@ -99,4 +106,7 @@ if __name__ == '__main__':
 
     # Using a batch size of 128
     batch_size = 128
-    history, model = train(model, batch_size)
+    data = get_datasets(batch_size)
+    history, model = train(model, batch_size,data)
+    save_model(model=model)
+    evaluate_model(model=model,data=data)
